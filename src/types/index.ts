@@ -5,24 +5,29 @@ export interface Patient {
   age: number;
   gender: 'Male' | 'Female' | 'Other';
   diagnosis: string;
-  lastTestDate: string | null;
   medicalHistory: string;
-}
-
-export interface EEGData {
-  timestamp: number;
-  values: {
-    [region: string]: number;
-  };
-}
-
-export interface BrainRegion {
-  id: string;
-  name: string;
-  description: string;
+  lastTestDate: string | null;
 }
 
 export interface EmotionResult {
   emotion: string;
   confidence: number;
+  timestamp: string;
+}
+
+export interface BrainRegionData {
+  region: string;
+  activity: number;
+  baseline: number;
+}
+
+export interface EEGReading {
+  timestamp: string;
+  data: {
+    alpha: number[];
+    beta: number[];
+    delta: number[];
+    theta: number[];
+    gamma: number[];
+  };
 }
