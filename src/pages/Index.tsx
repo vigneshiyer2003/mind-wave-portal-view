@@ -4,7 +4,7 @@ import Layout from '../components/Layout';
 import PatientCard from '../components/PatientCard';
 import { mockPatients } from '../utils/mockData';
 import { Input } from '@/components/ui/input';
-import { Brain, Plus, Search } from 'lucide-react';
+import { Brain, Download, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/
 import { useForm } from 'react-hook-form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { exportToExcel } from '../utils/exportUtils';
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,6 +43,14 @@ const Index = () => {
     });
   };
 
+  const handleExport = () => {
+    exportToExcel(patients);
+    toast({
+      title: "Export Successful",
+      description: "Patient database has been exported to CSV.",
+    });
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -53,22 +62,32 @@ const Index = () => {
             </p>
           </div>
           
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                variant="default" 
-                className="transition-all duration-300 hover:shadow-md hover:scale-105 w-full sm:w-auto"
-              >
-                <Plus className="mr-2 h-4 w-4" /> Add Patient
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle className="text-xl font-semibold text-primary">Add New Patient</DialogTitle>
-              </DialogHeader>
-              <AddPatientForm onAddPatient={handleAddPatient} />
-            </DialogContent>
-          </Dialog>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button 
+              variant="outline" 
+              className="transition-all duration-300 hover:shadow-md hover:scale-105 w-full sm:w-auto"
+              onClick={handleExport}
+            >
+              <Download className="mr-2 h-4 w-4" /> Export to CSV
+            </Button>
+            
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  variant="default" 
+                  className="transition-all duration-300 hover:shadow-md hover:scale-105 w-full sm:w-auto"
+                >
+                  <Plus className="mr-2 h-4 w-4" /> Add Patient
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-semibold text-primary">Add New Patient</DialogTitle>
+                </DialogHeader>
+                <AddPatientForm onAddPatient={handleAddPatient} />
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         <div className="relative">

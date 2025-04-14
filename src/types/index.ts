@@ -31,3 +31,15 @@ export interface EEGReading {
     gamma: number[];
   };
 }
+
+// Adding the missing types needed by other components
+export interface BrainRegion {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface EEGData {
+  timestamp: number;
+  values: Record<string, number>;
+}
