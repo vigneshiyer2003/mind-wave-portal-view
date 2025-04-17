@@ -1,9 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EEGData, BrainRegion } from '../types';
 import { generateEEGData, brainRegions } from '../utils/mockData';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import StressIndicator from './StressIndicator';
+import { useToast } from '@/hooks/use-toast';
 
 interface EEGVisualizationProps {
   patientId: string;
@@ -18,6 +19,10 @@ const EEGVisualization: React.FC<EEGVisualizationProps> = ({
 }) => {
   const [eegData, setEegData] = useState<EEGData[]>([]);
   const [activeRegions, setActiveRegions] = useState<string[]>(brainRegions.map(r => r.id));
+  const [stressLevel, setStressLevel] = useState(0);
+  const { toast } = useToast();
+  
+  const STRESS_THRESHOLD = 70; // Threshold for high stress
   
   // Color mapping for brain regions
   const regionColors: Record<string, string> = {
@@ -38,27 +43,46 @@ const EEGVisualization: React.FC<EEGVisualizationProps> = ({
   useEffect(() => {
     const updateInterval = setInterval(() => {
       setEegData(prevData => {
-        // Add new data point
         const lastTimestamp = prevData[prevData.length - 1]?.timestamp || Date.now();
         const newDataPoint: EEGData = {
           timestamp: lastTimestamp + (1000 / samplingRate),
           values: {}
         };
         
-        // Generate new values for each region
+        // Calculate stress level based on brain activity
+        let totalStress = 0;
+        
         brainRegions.forEach(region => {
           const prevValue = prevData[prevData.length - 1]?.values[region.id] || 0;
           // Add some randomness while maintaining continuity
-          newDataPoint.values[region.id] = prevValue + (Math.random() * 20 - 10);
+          const newValue = prevValue + (Math.random() * 20 - 10);
+          newDataPoint.values[region.id] = newValue;
+          
+          // Beta and gamma waves are often associated with stress/anxiety
+          if (region.id === 'frontal' || region.id === 'temporal') {
+            totalStress += Math.abs(newValue);
+          }
         });
+
+        // Update stress level
+        const newStressLevel = totalStress / 2; // Average of frontal and temporal activity
+        setStressLevel(newStressLevel);
+
+        // Notify if stress level crosses threshold
+        if (newStressLevel > STRESS_THRESHOLD && prevData[prevData.length - 1]?.values['frontal'] <= STRESS_THRESHOLD) {
+          toast({
+            variant: "destructive",
+            title: "High Stress Detected",
+            description: "Patient is showing signs of elevated stress levels.",
+          });
+        }
         
-        // Return updated data, removing oldest point to maintain fixed window
         return [...prevData.slice(1), newDataPoint];
       });
     }, 1000 / samplingRate);
     
     return () => clearInterval(updateInterval);
-  }, [samplingRate]);
+  }, [samplingRate, toast]);
 
   // Toggle brain region visibility
   const toggleRegion = (regionId: string) => {
@@ -77,6 +101,8 @@ const EEGVisualization: React.FC<EEGVisualizationProps> = ({
 
   return (
     <div className="space-y-4">
+      <StressIndicator stressLevel={stressLevel} threshold={STRESS_THRESHOLD} />
+      
       <Card>
         <CardHeader>
           <CardTitle>EEG Signal Visualization</CardTitle>

@@ -2,11 +2,11 @@
 import React from 'react';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { WifiOff, Wifi, Loader2 } from 'lucide-react';
-import { DeviceStatus } from '../types';
+import type { DeviceStatus as DeviceStatusType } from '../types';
 import { cn } from '@/lib/utils';
 
 interface DeviceStatusProps {
-  status: DeviceStatus;
+  status: DeviceStatusType;
 }
 
 const DeviceStatus: React.FC<DeviceStatusProps> = ({ status }) => {
