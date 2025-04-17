@@ -1,15 +1,15 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import EEGVisualization from '../components/EEGVisualization';
 import EmotionAnalysis from '../components/EmotionAnalysis';
+import DeviceStatus from '../components/DeviceStatus';
 import { mockPatients } from '../utils/mockData';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, User } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Patient } from '../types';
+import { Patient, DeviceStatus as DeviceStatusType } from '../types';
 import { useToast } from '@/components/ui/use-toast';
 
 const TestPage = () => {
@@ -17,6 +17,7 @@ const TestPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [patient, setPatient] = useState<Patient | undefined>();
+  const [deviceStatus, setDeviceStatus] = useState<DeviceStatusType>('connecting');
   
   useEffect(() => {
     // Find patient by ID
@@ -24,6 +25,15 @@ const TestPage = () => {
     
     if (foundPatient) {
       setPatient(foundPatient);
+      
+      // Simulate device connection
+      setTimeout(() => {
+        setDeviceStatus('connected');
+        toast({
+          title: 'Device Connected',
+          description: 'EEG device successfully connected and transmitting data.',
+        });
+      }, 2000);
       
       // Simulate test starting
       toast({
@@ -39,6 +49,11 @@ const TestPage = () => {
       });
       navigate('/');
     }
+
+    return () => {
+      // Cleanup: Set device as disconnected when component unmounts
+      setDeviceStatus('disconnected');
+    };
   }, [patientId, navigate, toast]);
 
   if (!patient) {
@@ -60,6 +75,8 @@ const TestPage = () => {
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Patients
           </Button>
         </div>
+
+        <DeviceStatus status={deviceStatus} />
 
         <Card>
           <CardHeader>

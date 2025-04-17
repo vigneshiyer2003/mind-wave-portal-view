@@ -1,4 +1,3 @@
-
 export interface Patient {
   id: string;
   name: string;
@@ -43,3 +42,5 @@ export interface EEGData {
   timestamp: number;
   values: Record<string, number>;
 }
+
+export type DeviceStatus = 'connected' | 'disconnected' | 'connecting';
